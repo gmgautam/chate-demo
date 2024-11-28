@@ -7,7 +7,7 @@ const MiniLoader = () => {
       <div className="load-inner load-one"></div>
       <div className="load-inner load-two"></div>
       <div className="load-inner load-three"></div>
-      <span className="text !text-[red]">Loading...</span>
+      <span className="text !text-[black]">Loading...</span>
     </div>
   );
 };

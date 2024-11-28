@@ -14,7 +14,7 @@ body {
     position: relative;
     perspective: 50000px;
     color: #2f005a;
-    /* color: rgba(0, 0, 0, 0.349); */
+    /* color: rgb(255, 250, 250); */
 
 }
 .circles span {
@@ -26,7 +26,7 @@ body {
   width: 18.4%;
   height: 18.4%;
   border-radius: 100%;
-  background: currentColor;
+  /* background: currentColor; */
 }
 .circles div {
   position: absolute;

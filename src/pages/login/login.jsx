@@ -1,103 +1,224 @@
-import { useForm } from "react-hook-form";
-import { FaUserCircle } from "react-icons/fa";
-import { loginUser } from "../../Slices/userslice/userSlice";
+import { useForm, Controller } from "react-hook-form";
+import { Box, Button, TextField, Typography } from "@mui/material";
+import bgimge from "../../assets/images/chateimage.png";
+import { Link, useNavigate } from "react-router";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { userschema } from "../../Utilies/formSchema/formSchema";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate, Navigate, Link } from "react-router";
-import { setDataToLocalStorage } from "../../Utilies/LocalStorge";
+import { loginUser } from "../../Slices/userslice/userSlice";
 import { toast } from "sonner";
-import Loader from "../../loader/loader";
-import RegistterController from "../register/register2Controller";
-const intialvalue = {
-  email: "",
-  password: "",
-};
+import MiniLoader from "../../loader/miniLoader/miniLoader";
+import { setDataToLocalStorage } from "../../Utilies/LocalStorge";
 const Login = () => {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const { isLoading ,userData} = useSelector((state) => state.user);
+  const login=userschema.pick(["email","password"])
   const {
     handleSubmit,
-    register,
+    reset,
+    control,
+    formState: { errors },
   } = useForm({
-    defaultValues: intialvalue,
+    resolver: yupResolver(login),
+    mode: "onChange",
+    defaultValues: {
+      email: "",
+      password:""
+    },
   });
-  console.log(isLoading,"loas",userData)
-  const handleSubmitData = async (data) => {
-    try {
-      dispatch(loginUser(data))
-        .unwrap()
-        .then((data) => {
-          console.log(data, "login page");
-          toast.success(data.message);
-          setDataToLocalStorage("authToken", data.data.token);
-          navigate("/dashboard");
-        })
-        .catch((error) => {
-          toast.info(error);
-        });
-    } catch (error) {
-      toast.error("error plese try again ");
-      console.log(error);
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const isLoading = useSelector((state) => state.user.isLoading);
+  // handel register function
+  const handelRegister = (data) => {
+    try{
+      dispatch(loginUser(data)).unwrap()
+      .then((data)=>{
+        toast.success(data.message)
+        if(data.statusCode===200){
+          setDataToLocalStorage("authToken",data.data.token)
+          navigate("/dashboard")
+        }
+      })
+      .catch((error)=>{
+        toast.error(error)
+        console.log("error- then catch-->",error)
+      })
+    }catch(error){
+      console.log("erridsf",error)
     }
   };
-if(isLoading){
-  return <Loader/>
-}
+
   return (
-    <div className=" ">
-      <h1 className="text-center font-[700] text-[24px]">Login user</h1>
-      <form
-        action=""
-        className="flex  flex-col  justify-center items-center"
-        onSubmit={handleSubmit(handleSubmitData)}
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        height: "100vh ",
+      }}
+      style={{
+        backgroundImage: "url('src/assets/images/mountain.png')",
+
+        backgroundPosition: "bottom", // Controls the position of the background
+        backgroundRepeat: "no-repeat", // Ensures the image doesn't repeat
+        backgroundSize: "cover", // Makes the background cover the container
+      }}
+    >
+      <Box
+        sx={{
+          display: "flex",
+
+          justifyContent: "center",
+          alignItems: "center",
+          p: "40px 0",
+          height: 580,
+          width: "67%",
+          borderRadius: 1,
+          backdropFilter: "blur(4px) saturate(200%)",
+          WebkitBackdropFilter: "blur(4px) saturate(200%)", // Safari compatibility
+          backgroundColor: "rgba(255, 255, 255, 0.24)",
+          border: "1px solid rgba(209, 213, 219, 0.3)",
+        }}
+        className="flex flex-row-reverse"
       >
-        <div className="inner-div border  h-[460px]  p-[15px]  rounded-[15px]">
-          <div className="logo">
-            <span>
-              <FaUserCircle className="text-[48px] text-[blue] " />{" "}
-              <span className=" text-[24px] font-[600]">LOGIN </span>
-            </span>
-          </div>
-          <div className="flex flex-col w-[400px] p-5 border h-[270px] bg-[red] justify-center ">
-            <label htmlFor="email" className="text-[18px] font-[500]">
-              email
-            </label>
-            <input
-              type="email"
-              className="border border-black p-2 rounded  "
-              placeholder="enter your email"
-              id="email"
-              {...register("email", { required: true })}
-            />
+        {/* background image of the registerrationpage */}
+        <Box sx={{ width: "50%" }}>
+          <img src={bgimge} className="w-[100%] h-[100%] bg-cover" alt="" />
+        </Box>
 
-            <label htmlFor="password" className="text-[18px] font-[500]">
-              Password
-            </label>
-            <input
-              type="password"
-              className="border border-black p-2 rounded "
-              placeholder="Password"
-              id="password"
-              {...register("password", { required: true })}
-            />
-
-            <button
-              disabled={isLoading}
-              type="submit"
-              className="border border-black p-2 mt-4"
+        {/* ------------------------------ */}
+        {/* registerration form */}
+        <Box
+          className=" h-[550px]  p-5 pl-[30px] ml-4"
+          sx={{
+            width: "50%",
+            backdropFilter: "blur(25px) saturate(200%)",
+            WebkitBackdropFilter: "blur(25px) saturate(200%)", // Safari compatibility
+            backgroundColor: "rgba(255, 255, 255, 0.83)",
+            borderRadius: "12px",
+            border: "1px solid rgba(209, 213, 219, 0.3)",
+          }}
+        >
+          <Typography
+            sx={{
+              fontWeight: "700",
+              fontSize: "30px",
+              color: "#FF4F5A",
+              textAlign: "center",
+              marginBottom: "5px",
+            }}
+          >
+            Admin Portal Login
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: "16px",
+              // color: "rgba(255, 255, 255, 0.8)",
+              color: "black",
+              textAlign: "center",
+              mb: 3, // Adds spacing below the description
+            }}
+          >
+            Don't have an account yet?{" "}
+            <Link
+              to="/register"
+              style={{
+                textDecoration: "underline",
+                color: "#1976d2", // Material-UI primary blue for consistency
+                fontWeight: "500",
+              }}
             >
-              {isLoading ? "logging..." : "Sign in"}
-            </button>
-            <p className="mt-3">
-              If you don&apos;t have account please{" "}
-              <Link to="/register" className="text-blue-900 font-[500]">
-                Click here
-              </Link>
-            </p>
-          </div>
-        </div>
-      </form>
-    </div>
+              Sign up here
+            </Link>
+            to get started.
+          </Typography>
+          <Box className="p-2 w-[100%] ">
+            <form
+              className="flex flex-col h-[250px] justify-around  "
+              onSubmit={handleSubmit(handelRegister)}
+            >
+             
+              {/* email input */}
+              <Box>
+                <Controller
+                  name="email"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      id="outlined-basic"
+                      label="Email"
+                      variant="outlined"
+                      error={!!errors.email}
+                      helperText={errors.email?.message}
+                      sx={{
+                        width: "100%",
+                        "& .MuiOutlinedInput-root": {
+                          "&.Mui-focused input": {
+                            // color: "#FF4F5A",
+                            color: "black", // Text color when focused
+                          },
+                        },
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "#FF4F5A", // Label color when focused
+                        },
+                      }}
+                      {...field}
+                    />
+                  )}
+                />
+              </Box>
+              {/* ---- */}
+
+              {/* password */}
+              <Box>
+                <Controller
+                  name="password"
+                  control={control}
+                  render={({ field }) => (
+                    <TextField
+                      id="outlined-basic"
+                      label="Password"
+                      variant="outlined"
+                      error={!!errors.password}
+                      helperText={errors.password?.message}
+                      sx={{
+                        width: "100%",
+                        "& .MuiOutlinedInput-root": {
+                          "&.Mui-focused input": {
+                            // color: "#FF4F5A",
+                            color: "black", // Text color when focused
+                          },
+                        },
+                        "& .MuiInputLabel-root.Mui-focused": {
+                          color: "#FF4F5A", // Label color when focused
+                        },
+                      }}
+                      {...field}
+                    />
+                  )}
+                />
+              </Box>
+              {/* ---- */}
+              <Button
+                type="submit"
+                variant={"contained"}
+                disabled={isLoading}
+                sx={{
+                  textTransform: "none",
+                  height: "50px",
+                  backgroundColor: isLoading ? "white" : "#FF4F5A",
+                  // backgroundColor:"white",
+                  fontSize: "22px",
+                  fontWeight: "400",
+                }}
+              >
+               {isLoading?<MiniLoader/>:"Log in "}
+              </Button>
+            </form>
+          </Box>
+        </Box>
+      </Box>
+    </Box>
   );
 };
 export default Login;

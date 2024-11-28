@@ -1,13 +1,14 @@
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, set } from "react-hook-form";
 import { Box, Button, TextField, Typography } from "@mui/material";
 import bgimge from "../../assets/images/chateimage.png";
 import { Link,useNavigate } from "react-router";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { userschema } from "../../Utilies/formSchema/formSchema";
-import { createUser } from "../../Slices/userslice/userSlice";
+import { createUser, loginUser } from "../../Slices/userslice/userSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "sonner";
 import MiniLoader from "../../loader/miniLoader/miniLoader";
+import { setDataToLocalStorage } from "../../Utilies/LocalStorge";
 const RegistterController = () => {
   const {
     handleSubmit,
@@ -29,20 +30,37 @@ const RegistterController = () => {
   const  navigate=useNavigate()
   const isLoading=useSelector((state)=>state.user.isLoading)
   // handel register function
+  let user={}
   const handelRegister = (data) => {
+    const{email,password}=data
+    user={email,password}
     try{
         dispatch(createUser(data)).unwrap()
         .then((data)=>{
             toast.success(data.message)
+            console.log(data,"registerstion data")
+            // setDataToLocalStorage("auth")
            if(data.statusCode===200){
-            navigate("/login")
+           try{
+            dispatch(loginUser(user)).unwrap()
+            .then((data)=>{
+              setDataToLocalStorage("authToken",data.data.token)
+              navigate("/dashboard")
+            })
+            .catch((error)=>{
+              console.log(error,"error in go to dasbord througn the register")
+              navigate("/login")
+            })
+           }catch(error){
+            console.log(error,"try catchin register lin e52")
            }
-            reset();
+          }
+          reset();
         })
         .catch((error)=>{
-            if(error==="You Are Already Registered"){
-                navigate("/login")
-                toast.info(error)
+          if(error==="You Are Already Registered"){
+            navigate("/login")
+            toast.info(error)
             }else{
                 toast.error(error)
             }
@@ -270,6 +288,7 @@ const RegistterController = () => {
               <Button
                 type="submit"
                 variant={"contained"}
+                // disabled={true}
                 sx={{
                   textTransform: "none",
                   height: "50px",
@@ -279,8 +298,7 @@ const RegistterController = () => {
                   fontWeight: "400",
                 }}
               >
-                Sign up{" "}
-                {/* <MiniLoader/> */}
+                {isLoading?<MiniLoader/>:"Singn up"}
               </Button>
             </form>
           </Box>
